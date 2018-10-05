@@ -1,35 +1,14 @@
 var express = require("express"),
     bodyParser = require("body-parser"),
     mongoose = require("mongoose"),
+    Campground = require("./models/campground"),
+    seedDB = require("./seeds"),
     app = express();
-
+    
+seedDB();
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true});
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
-
-// Schema Setup
-var campgroundSchema = new mongoose.Schema({
-   name: String,
-   image: String,
-   description: String
-});
-
-var Campground = mongoose.model("Campground", campgroundSchema);
-
-// Campground.create(
-//     {
-//         name: 'Granite Hill',
-//         image: 'https://source.unsplash.com/dQwijI66_Jw',
-//         description: "This is a huge granit hill. No bathrooms. No water. Just Beautiful~ Granite!"
-        
-//     }, function(err, campground){
-//       if(err){
-//           console.log(err);
-//       } else {
-//           console.log("NEWLY CREATED CAMPGROUND: ");
-//           console.log(campground);
-//       }
-//     });
 
 // Routes
 app.get("/", function(req, res){
@@ -70,7 +49,7 @@ app.post("/campgrounds", function(req, res){
 
 app.get("/campgrounds/:id", function(req, res) {
     //Find the campground w/ ID
-    Campground.findById(req.params.id, function(err, foundCampground){
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
        if(err){
            console.log(err);
        } else {
